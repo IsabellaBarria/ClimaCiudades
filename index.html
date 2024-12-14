@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Clima</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Tarjeta principal que contiene todos los elementos -->
+    <div class="card">
+        <!-- Sección de búsqueda -->
+        <div class="search">
+            <input type="text" placeholder="Ciudad" spellcheck="false">
+            <button><img src="images/search.png"></button>
+        </div>
+        <!-- Mensaje de error que se muestra si la búsqueda es inválida -->
+        <div class="error" style="display: none;">
+            <p>Inválido</p>
+        </div>
+
+        <!-- Sección que muestra la información del clima -->
+        <div class="weather">
+            <img src="images/rain.png" class="weather-icon">
+            <h1 class="temp">29°C</h1>
+            <h2 class="city">New York</h2>
+
+            <div class="details">
+                <div class="col">
+                    <img src="images/humidity.png">
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="images/wind.png">
+                    <div>
+                        <p class="wind">15 km/h</p>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Clave de la API de OpenWeatherMap
+        const apiKey = "0fd27714c6103a0e931263f1f6f2f18b";
+        // URL base de la API de OpenWeatherMap con unidades en métrico
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+        // Selecciona el campo de entrada de búsqueda
+        const searchBox = document.querySelector(".search input");
+         // Selecciona el botón de búsqueda
+        const searchBtn = document.querySelector(".search button");
+        // Selecciona el icono del clima
+        const weatherIcon = document.querySelector(".weather-icon");
+
+        // Función asincrónica para verificar el clima de una ciudad
+        async function checkWeather(city) {
+            // Realiza una solicitud a la API con la ciudad y la clave de la API
+            const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+            // Si la respuesta es 404 (no encontrado), muestra el mensaje de error
+            if (response.status == 404) {
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".weather").style.display = "none";
+            } else {
+                // Si la respuesta es exitosa, obtiene los datos
+                const data = await response.json();
+                // Cambia el icono del clima según el tipo de clima recibido
+                if (data.weather[0].main == "Clouds") {
+                    weatherIcon.src = "images/clouds.png";
+                } else if (data.weather[0].main == "Clear") {
+                    weatherIcon.src = "images/clear.png";
+                } else if (data.weather[0].main == "Rain") {
+                    weatherIcon.src = "images/rain.png";
+                } else if (data.weather[0].main == "Drizzle") {
+                    weatherIcon.src = "images/drizzle.png";
+                } else if (data.weather[0].main == "Mist") {
+                    weatherIcon.src = "images/mist.png";
+                }
+                // Muestra la sección del clima y oculta el mensaje de error
+                document.querySelector(".weather").style.display = "block";
+                document.querySelector(".error").style.display = "none";
+
+                // Actualiza el nombre de la ciudad
+                document.querySelector(".city").innerHTML = data.name;
+                // Actualiza la temperatura redondeada
+                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+                // Actualiza el porcentaje de humedad
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                // Actualiza la velocidad del viento
+                document.querySelector(".wind").innerHTML = data.wind.speed + "km/h";
+            }
+        }
+        // Añade un evento al botón de búsqueda para verificar el clima cuando se hace clic
+        searchBtn.addEventListener("click", () => {
+            checkWeather(searchBox.value);
+        });
+        // Añade un evento al campo de entrada para verificar el clima cuando se presiona Enter
+        searchBox.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        checkWeather(searchBox.value);
+    }
+});
+    </script>
+    
+</body>
+</html>
